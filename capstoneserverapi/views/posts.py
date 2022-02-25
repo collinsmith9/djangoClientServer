@@ -67,4 +67,6 @@ class CreatePostSerializer(serializers.ModelSerializer):
     class Meta:
         model = Post
         fields = 'id', 'user', 'problem', 'problemDescription'
+
+
         
