@@ -8,68 +8,58 @@ from rest_framework import serializers, status
 from django.db.models import Q
 from datetime import datetime
 from rest_framework.decorators import action
-from capstoneserverapi.models import Post
+from capstoneserverapi.models import HelpRequest
 
 
-class PostView(ViewSet):
+class HelpRequestView(ViewSet):
     def retrieve(self, request, pk):
         try:
-            post = Post.objects.get(pk=pk)
-            serializer = PostSerializer(post)
+            help_request = HelpRequest.objects.get(pk=pk)
+            serializer = HelpRequestSerializer(help_request)
             return Response(serializer.data)
-        except Post.DoesNotExist as ex:
+        except HelpRequest.DoesNotExist as ex:
             return Response({'message': ex.args[0]}, status=status.HTTP_404_NOT_FOUND)
 
     def list(self, request):
-        posts = Post.objects.all()
+        help_requests = HelpRequest.objects.all()
         user = request.query_params.get('user', None)
         if user is not None:
-            posts = posts.filter(user_id=user)
-        serializer = PostSerializer(posts, many=True)
+            help_requests = help_requests.filter(user_id=user)
+        serializer = HelpRequestSerializer(help_requests, many=True)
         return Response(serializer.data)
 
     def create(self, request):
         try:
-            serializer = CreatePostSerializer(data=request.data)
+            serializer = CreateHelpRequestSerializer(data=request.data)
             serializer.is_valid(raise_exception=True)
-            post = serializer.save()
+            help_request = serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         except ValidationError as ex:
             return Response({'message': ex.args[0]}, status=status.HTTP_400_BAD_REQUEST)
 
     def destroy(self, request, pk):
-        post = Post.objects.get(pk=pk)
-        post.delete()
+        help_request = HelpRequest.objects.get(pk=pk)
+        help_request.delete()
         return Response(None, status=status.HTTP_204_NO_CONTENT)
 
     def update(self, request, pk):
         try: 
-            post = Post.objects.get(pk=pk)
-            serializer = CreatePostSerializer(post, request.data)
+            help_request = HelpRequest.objects.get(pk=pk)
+            serializer = CreateHelpRequestSerializer(help_request, request.data)
             serializer.is_valid(raise_exception=True)
-            post = serializer.save()
+            help_request = serializer.save()
             return Response(None, status=status.HTTP_204_NO_CONTENT)
         except ValidationError as ex:
             return Response({'message': ex.args[0]}, status=status.HTTP_400_BAD_REQUEST)
 
 
-
-
-
-
-
-    
-
-class PostSerializer(serializers.ModelSerializer):
+class HelpRequestSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Post
-        fields = 'id', 'user', 'problem', 'problemDescription'
+        model = HelpRequest
+        fields = 'id', 'user', 'employee', 'problem', 'problemDescription'
         depth = 2
 
-class CreatePostSerializer(serializers.ModelSerializer):
+class CreateHelpRequestSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Post
-        fields = 'id', 'user', 'problem', 'problemDescription'
-
-
-        
+        model = HelpRequest
+        fields = 'id', 'user', 'employee', 'problem', 'problemDescription'
